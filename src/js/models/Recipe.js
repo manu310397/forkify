@@ -12,12 +12,13 @@ export default class Recipe {
       const res = await axios(
         `${proxy}http://food2fork.com/api/get?key=${key}&rId=${this.id}`
       );
+      //console.log(res.data.recipe);
       this.title = res.data.recipe.title;
       this.author = res.data.recipe.publisher;
       this.image = res.data.recipe.image_url;
       this.url = res.data.recipe.source_url;
       this.ingredients = res.data.recipe.ingredients;
-      console.log("Ingredients");
+      //console.log("Ingredients");
     } catch (error) {
       console.log(error);
       alert("Something went wrong");
@@ -56,9 +57,11 @@ export default class Recipe {
       "pound"
     ];
 
+    const units = [...unitsShort, 'kg', 'g'];
+
     const newIngredients = this.ingredients.map(ingredient => {
       let newIngredient = ingredient.toLowerCase();
-      console.log(newIngredient);
+      // console.log(newIngredient);
       unitsLong.forEach((unitLong, i) => {
         newIngredient = newIngredient.replace(unitLong, unitsShort[i]);
       });
@@ -67,7 +70,7 @@ export default class Recipe {
       newIngredient = newIngredient.replace(/ *\([^)]*\) */g, " ");
 
       const arrIng = newIngredient.split(" ");
-      const unitIndex = arrIng.findIndex(el2 => unitsShort.includes(el2));
+      const unitIndex = arrIng.findIndex(el2 => units.includes(el2));
 
       let objIngredient = {};
       if (unitIndex > -1) {
@@ -99,10 +102,21 @@ export default class Recipe {
           newIngredient
         };
       }
-      console.log(objIngredient);
+      // console.log(objIngredient);
       return objIngredient;
     });
 
     this.ingredients = newIngredients;
+  }
+
+  updateServings (type) {
+    const newServings = type === 'dec' ? this.servings -1 : this.servings + 1;
+
+
+    this.ingredients.forEach(ing => {
+      ing.count = ing.count * (newServings/this.servings);
+    })
+
+    this.servings = newServings;
   }
 }
